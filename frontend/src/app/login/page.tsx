@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authApi } from "@/services/auth.service";
 import { useAuthStore } from "@/stores/auth-store";
+import { BrandLogo } from "@/components/icons";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -40,29 +41,7 @@ export default function LoginPage() {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        {/* Logo */}
-        <div className="auth-logo">
-          <div
-            style={{
-              width: 36,
-              height: 36,
-              background: "linear-gradient(135deg, #6366f1, #4338ca)",
-              borderRadius: 10,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontSize: 18,
-              fontWeight: 700,
-              color: "#fff",
-              flexShrink: 0,
-            }}
-          >
-            T
-          </div>
-          <span style={{ fontSize: 18, fontWeight: 700, color: "var(--text-primary)" }}>
-            TaskFlow
-          </span>
-        </div>
+        <BrandLogo className="auth-logo" />
 
         <h1
           style={{

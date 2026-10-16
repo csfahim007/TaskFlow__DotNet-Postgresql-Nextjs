@@ -8,6 +8,7 @@ import { commentsApi, Comment } from "@/services/comments.service";
 import { useAuthStore } from "@/stores/auth-store";
 import { useSignalR } from "@/lib/use-signalr";
 import { CalendarView } from "@/components/calendar/CalendarView";
+import { Icon } from "@/components/icons";
 
 /* ────────────────────────────────────────────
    Types & constants
@@ -117,8 +118,8 @@ function ProjectMembersModal({
           <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--text-primary)" }}>
             Project Members ({members.length})
           </h2>
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>
-            ✕
+          <button className="btn btn-ghost btn-sm" onClick={onClose} aria-label="Close project members dialog">
+            <Icon name="x" />
           </button>
         </div>
 
@@ -224,8 +225,9 @@ function ProjectMembersModal({
                       style={{ color: "#f87171", padding: "4px 8px" }}
                       onClick={() => handleRemoveMember(m.userId)}
                       title="Remove member"
+                      aria-label="Remove member"
                     >
-                      ✕
+                      <Icon name="x" />
                     </button>
                   )}
                 </div>
@@ -314,8 +316,8 @@ function CreateTaskModal({
           <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--text-primary)" }}>
             New task · {defaultStatus.replace("InProgress", "In Progress").replace("InReview", "In Review")}
           </h2>
-          <button className="btn btn-ghost btn-sm" onClick={onClose} id="btn-close-task-modal">
-            ✕
+          <button className="btn btn-ghost btn-sm" onClick={onClose} id="btn-close-task-modal" aria-label="Close task dialog">
+            <Icon name="x" />
           </button>
         </div>
 
@@ -411,7 +413,7 @@ function CreateTaskModal({
           <div className="form-group">
             <div className="flex-between" style={{ marginBottom: 6 }}>
               <label className="label" htmlFor="task-due" style={{ margin: 0 }}>
-                📅 Due date & Calendar Preset
+                <Icon name="calendar" size={14} /> Due date & Calendar Preset
               </label>
               {form.dueDate && (
                 <button
@@ -615,8 +617,8 @@ function TaskDetailModal({
               {task.priority}
             </span>
           </div>
-          <button className="btn btn-ghost btn-sm" onClick={onClose}>
-            ✕
+          <button className="btn btn-ghost btn-sm" onClick={onClose} aria-label="Close task details">
+            <Icon name="x" />
           </button>
         </div>
 
@@ -735,7 +737,7 @@ function TaskDetailModal({
                     style={{ padding: "3px 8px", fontSize: 11 }}
                     onClick={() => setIsEditing(true)}
                   >
-                    ✎ Edit
+                    <Icon name="edit" size={13} /> Edit
                   </button>
                 </div>
 
@@ -766,7 +768,8 @@ function TaskDetailModal({
                   <div>
                     <label className="label">Due Date</label>
                     <div style={{ fontSize: 13, color: isOverdue(task.dueDate) ? "#f87171" : "var(--text-secondary)", marginTop: 6 }}>
-                      {task.dueDate ? `📅 ${new Date(task.dueDate).toLocaleString()}` : "No due date"}
+                      {task.dueDate && <Icon name="calendar" size={14} />}
+                      {task.dueDate ? ` ${new Date(task.dueDate).toLocaleString()}` : "No due date"}
                     </div>
                   </div>
                 </div>
@@ -854,8 +857,9 @@ function TaskDetailModal({
                           onClick={() => handleDeleteComment(c.id)}
                           style={{ background: "none", border: "none", color: "var(--text-muted)", cursor: "pointer", fontSize: 11 }}
                           title="Delete comment"
+                          aria-label="Delete comment"
                         >
-                          ✕
+                          <Icon name="x" size={14} />
                         </button>
                       </div>
                     </div>
@@ -1195,7 +1199,7 @@ export default function ProjectBoardPage({
               style={{ padding: "4px 8px", fontSize: 12 }}
               onClick={() => router.push("/dashboard/projects")}
             >
-              ← Projects
+              <Icon name="chevronLeft" size={14} /> Projects
             </button>
           </div>
           <h1 className="page-title" style={{ fontSize: 18 }}>
@@ -1237,7 +1241,7 @@ export default function ProjectBoardPage({
               ))}
             </div>
             <button className="btn btn-secondary btn-sm" style={{ padding: "4px 8px", fontSize: 12 }}>
-              👥 Members ({members.length})
+              <Icon name="users" size={14} /> Members ({members.length})
             </button>
           </div>
 
@@ -1249,7 +1253,7 @@ export default function ProjectBoardPage({
               className={`view-toggle-btn ${viewMode === "board" ? "active" : ""}`}
               onClick={() => setViewMode("board")}
             >
-              <span>☷</span> Board
+              <Icon name="board" size={15} /> Board
             </button>
             <button
               id="toggle-view-calendar"
@@ -1257,7 +1261,7 @@ export default function ProjectBoardPage({
               className={`view-toggle-btn ${viewMode === "calendar" ? "active" : ""}`}
               onClick={() => setViewMode("calendar")}
             >
-              <span>📅</span> Calendar
+              <Icon name="calendar" size={15} /> Calendar
             </button>
           </div>
 
@@ -1269,7 +1273,7 @@ export default function ProjectBoardPage({
               setCreateFor("Todo");
             }}
           >
-            + New task
+            <Icon name="plus" size={16} /> New task
           </button>
         </div>
       </div>
@@ -1322,7 +1326,7 @@ export default function ProjectBoardPage({
           onChange={(e) => setDateFilter(e.target.value)}
         >
           <option value="">All dates</option>
-          <option value="overdue">⚠ Overdue</option>
+          <option value="overdue">Overdue</option>
           <option value="today">Due Today</option>
           <option value="week">Due This Week</option>
           <option value="has_date">Has Due Date</option>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { tasksApi, Task } from "@/services/tasks.service";
 import { commentsApi, Comment } from "@/services/comments.service";
 import { useAuthStore } from "@/stores/auth-store";
+import { Icon } from "@/components/icons";
 
 const STATUS_OPTIONS = [
   { key: "all_open", label: "All Active" },
@@ -163,7 +164,9 @@ export default function MyTasksPage() {
           </div>
         ) : filteredTasks.length === 0 ? (
           <div style={{ padding: 48, textAlign: "center", color: "var(--text-muted)" }}>
-            <div style={{ fontSize: 28, marginBottom: 8 }}>✅</div>
+            <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "var(--status-done)" }}>
+              <Icon name="checkCircle" size={28} />
+            </div>
             <div style={{ fontSize: 15, fontWeight: 600, color: "var(--text-secondary)" }}>
               No tasks found
             </div>
@@ -259,7 +262,7 @@ export default function MyTasksPage() {
                             fontWeight: isOverdue ? 600 : 400,
                           }}
                         >
-                          {isOverdue ? "⚠ " : "📅 "}
+                          <Icon name={isOverdue ? "alertTriangle" : "calendar"} size={13} />
                           {new Date(t.dueDate).toLocaleDateString(undefined, {
                             month: "short",
                             day: "numeric",
@@ -319,8 +322,9 @@ export default function MyTasksPage() {
               <button
                 className="btn btn-ghost btn-sm"
                 onClick={() => setSelectedTask(null)}
+                aria-label="Close task details"
               >
-                ✕
+                <Icon name="x" />
               </button>
             </div>
 
@@ -340,12 +344,12 @@ export default function MyTasksPage() {
               </span>
               {selectedTask.dueDate && (
                 <span style={{ color: "var(--text-muted)" }}>
-                  📅 Due: {new Date(selectedTask.dueDate).toLocaleDateString()}
+                  <Icon name="calendar" size={14} /> Due: {new Date(selectedTask.dueDate).toLocaleDateString()}
                 </span>
               )}
               {selectedTask.storyPoints && (
                 <span style={{ color: "var(--text-muted)" }}>
-                  🎯 {selectedTask.storyPoints} Story Points
+                  <Icon name="target" size={14} /> {selectedTask.storyPoints} Story Points
                 </span>
               )}
             </div>
@@ -355,7 +359,7 @@ export default function MyTasksPage() {
                 href={`/dashboard/projects/${selectedTask.projectId}`}
                 className="btn btn-secondary btn-sm"
               >
-                Go to Project Board →
+                Go to Project Board <Icon name="arrowRight" size={14} />
               </Link>
             </div>
 

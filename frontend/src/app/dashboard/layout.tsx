@@ -7,67 +7,7 @@ import { useAuthStore } from "@/stores/auth-store";
 import { authApi } from "@/services/auth.service";
 import { notificationsApi, NotificationItem } from "@/services/notifications.service";
 import { useSignalR } from "@/lib/use-signalr";
-
-/* ── Icons ── */
-function IconHome({ active }: { active?: boolean }) {
-  const c = active ? "var(--brand-400)" : "currentColor";
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
-    </svg>
-  );
-}
-
-function IconCheck({ active }: { active?: boolean }) {
-  const c = active ? "var(--brand-400)" : "currentColor";
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-    </svg>
-  );
-}
-
-function IconFolder({ active }: { active?: boolean }) {
-  const c = active ? "var(--brand-400)" : "currentColor";
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-    </svg>
-  );
-}
-
-function IconShield({ active }: { active?: boolean }) {
-  const c = active ? "var(--brand-400)" : "currentColor";
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={c} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-    </svg>
-  );
-}
-
-function IconBell() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
-    </svg>
-  );
-}
-
-function IconKey() {
-  return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 2l-2 2m-1.5 1.5L14 9l-3 3-2-2-4 4 3 3 7-7 3.5-3.5z"/>
-    </svg>
-  );
-}
-
-function IconLogout() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
-    </svg>
-  );
-}
+import { BrandLogo, Icon, type IconName } from "@/components/icons";
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -195,14 +135,14 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     router.replace("/login");
   };
 
-  const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: IconHome },
-    { href: "/dashboard/my-tasks", label: "My Tasks", icon: IconCheck },
-    { href: "/dashboard/projects", label: "Projects", icon: IconFolder },
+  const navItems: { href: string; label: string; icon: IconName }[] = [
+    { href: "/dashboard", label: "Dashboard", icon: "home" },
+    { href: "/dashboard/my-tasks", label: "My Tasks", icon: "checkSquare" },
+    { href: "/dashboard/projects", label: "Projects", icon: "folder" },
   ];
 
   if (user?.role === "Admin") {
-    navItems.push({ href: "/dashboard/admin/users", label: "Admin Users", icon: IconShield });
+    navItems.push({ href: "/dashboard/admin/users", label: "Admin Users", icon: "shield" });
   }
 
   return (
@@ -210,17 +150,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Sidebar */}
       <aside className="sidebar">
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">T</div>
-          <span className="sidebar-logo-text">TaskFlow</span>
+          <BrandLogo />
         </div>
 
         <nav className="sidebar-nav">
-          {navItems.map(({ href, label, icon: Icon }) => {
+          {navItems.map(({ href, label, icon }) => {
             const active =
               pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
             return (
               <Link key={href} href={href} className={`sidebar-nav-item${active ? " active" : ""}`}>
-                <Icon active={active} />
+                <Icon name={icon} color={active ? "var(--brand-400)" : "currentColor"} />
                 {label}
               </Link>
             );
@@ -287,12 +226,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             onClick={() => setShowPasswordModal(true)}
             style={{ marginBottom: 2 }}
           >
-            <IconKey />
+            <Icon name="key" size={15} />
             Change Password
           </button>
 
           <button className="sidebar-nav-item" onClick={handleLogout} id="btn-logout">
-            <IconLogout />
+            <Icon name="logOut" />
             Sign out
           </button>
         </div>
@@ -332,7 +271,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               }}
               title="Notifications"
             >
-              <IconBell />
+              <Icon name="bell" size={18} />
               {unreadCount > 0 && (
                 <span
                   style={{
@@ -485,8 +424,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
               <button
                 className="btn btn-ghost btn-sm"
                 onClick={() => setShowPasswordModal(false)}
+                aria-label="Close change password dialog"
               >
-                ✕
+                <Icon name="x" />
               </button>
             </div>
 

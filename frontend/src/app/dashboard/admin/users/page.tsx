@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { usersApi, UserItem } from "@/services/users.service";
 import { useAuthStore } from "@/stores/auth-store";
+import { Icon } from "@/components/icons";
 
 const ROLES = ["Admin", "ProjectManager", "Member", "Viewer"];
 
@@ -107,8 +108,9 @@ export default function AdminUsersPage() {
           <button
             onClick={() => setMessage(null)}
             style={{ background: "none", border: "none", color: "inherit", cursor: "pointer" }}
+            aria-label="Dismiss message"
           >
-            ✕
+            <Icon name="x" />
           </button>
         </div>
       )}
@@ -277,7 +279,7 @@ export default function AdminUsersPage() {
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               disabled={page === 1}
             >
-              ← Previous
+              <Icon name="chevronLeft" size={14} /> Previous
             </button>
             <span style={{ fontSize: 12, color: "var(--text-muted)" }}>
               Page {page} of {totalPages}
@@ -287,7 +289,7 @@ export default function AdminUsersPage() {
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}
             >
-              Next →
+              Next <Icon name="chevronRight" size={14} />
             </button>
           </div>
         )}

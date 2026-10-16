@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { projectsApi, Project, CreateProjectRequest } from "@/services/projects.service";
 import Link from "next/link";
+import { Icon } from "@/components/icons";
 
 /* ── Modal ── */
 function CreateProjectModal({
@@ -66,8 +67,8 @@ function CreateProjectModal({
           <h2 style={{ fontSize: 17, fontWeight: 700, color: "var(--text-primary)" }}>
             New project
           </h2>
-          <button className="btn btn-ghost btn-sm" onClick={onClose} id="btn-close-project-modal">
-            ✕
+          <button className="btn btn-ghost btn-sm" onClick={onClose} id="btn-close-project-modal" aria-label="Close project dialog">
+            <Icon name="x" />
           </button>
         </div>
 
@@ -166,7 +167,7 @@ export default function ProjectsPage() {
           className="btn btn-primary"
           onClick={() => setShowModal(true)}
         >
-          + New project
+          <Icon name="plus" size={16} /> New project
         </button>
       </div>
 
@@ -197,7 +198,7 @@ export default function ProjectsPage() {
       ) : projects.length === 0 ? (
         <div className="card">
           <div className="empty-state">
-            <div className="empty-state-icon">📁</div>
+            <div className="empty-state-icon"><Icon name="folder" /></div>
             <div className="empty-state-title">
               {search ? "No projects match your search" : "No projects yet"}
             </div>
@@ -212,7 +213,7 @@ export default function ProjectsPage() {
                 style={{ marginTop: 4 }}
                 onClick={() => setShowModal(true)}
               >
-                + New project
+                <Icon name="plus" size={14} /> New project
               </button>
             )}
           </div>
@@ -301,7 +302,7 @@ export default function ProjectsPage() {
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}
               >
-                ← Prev
+                <Icon name="chevronLeft" size={14} /> Prev
               </button>
               <span style={{ lineHeight: "30px", fontSize: 13, color: "var(--text-muted)" }}>
                 {page} / {totalPages}
@@ -311,7 +312,7 @@ export default function ProjectsPage() {
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                 disabled={page === totalPages}
               >
-                Next →
+                Next <Icon name="chevronRight" size={14} />
               </button>
             </div>
           )}

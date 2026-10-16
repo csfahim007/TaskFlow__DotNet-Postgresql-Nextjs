@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Task } from "@/services/tasks.service";
+import { Icon } from "@/components/icons";
 
 interface CalendarViewProps {
   tasks: Task[];
@@ -103,13 +104,13 @@ export function CalendarView({ tasks, onTaskClick, onDateClick }: CalendarViewPr
           </h2>
           <div style={{ display: "flex", gap: 4 }}>
             <button className="btn btn-secondary btn-sm" onClick={prevMonth} title="Previous month">
-              ‹
+              <Icon name="chevronLeft" />
             </button>
             <button className="btn btn-secondary btn-sm" onClick={goToToday}>
               Today
             </button>
             <button className="btn btn-secondary btn-sm" onClick={nextMonth} title="Next month">
-              ›
+              <Icon name="chevronRight" />
             </button>
           </div>
         </div>
@@ -124,7 +125,7 @@ export function CalendarView({ tasks, onTaskClick, onDateClick }: CalendarViewPr
           </span>
           {overdueMonthTasks > 0 && (
             <span style={{ color: "#f87171", fontWeight: 600 }}>
-              ⚠ {overdueMonthTasks} overdue
+              <><Icon name="alertTriangle" size={14} /> {overdueMonthTasks} overdue</>
             </span>
           )}
         </div>

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { projectsApi, Project } from "@/services/projects.service";
 import { tasksApi, Task } from "@/services/tasks.service";
 import { useAuthStore } from "@/stores/auth-store";
+import { Icon } from "@/components/icons";
 
 export default function DashboardPage() {
   const router = useRouter();
@@ -151,7 +152,7 @@ export default function DashboardPage() {
 
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           <Link href="/dashboard/projects" className="btn btn-primary" style={{ padding: "8px 16px" }}>
-            + New Project
+            <Icon name="plus" /> New Project
           </Link>
         </div>
       </div>
@@ -201,7 +202,7 @@ export default function DashboardPage() {
               <>
                 <div style={{ width: 1, height: 16, background: "var(--border)" }} />
                 <div style={{ color: "#f87171", fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
-                  <span>⚠</span> {metrics.overdue} Overdue
+                  <Icon name="alertTriangle" size={15} /> {metrics.overdue} Overdue
                 </div>
               </>
             )}
@@ -295,7 +296,9 @@ export default function DashboardPage() {
             </div>
           ) : focusTasks.length === 0 ? (
             <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--text-muted)" }}>
-              <div style={{ fontSize: 24, marginBottom: 8 }}>✨</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "var(--brand-400)" }}>
+                <Icon name="sparkles" size={24} />
+              </div>
               <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-secondary)" }}>All caught up!</div>
               <div style={{ fontSize: 12 }}>No urgent tasks currently pending.</div>
             </div>
@@ -360,7 +363,7 @@ export default function DashboardPage() {
                             fontWeight: isOverdue ? 600 : 400,
                           }}
                         >
-                          {isOverdue ? "⚠ " : "📅 "}
+                          <Icon name={isOverdue ? "alertTriangle" : "calendar"} size={13} />
                           {new Date(t.dueDate).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
                         </span>
                       )}
@@ -409,7 +412,7 @@ export default function DashboardPage() {
               href="/dashboard/projects"
               style={{ fontSize: 12, color: "var(--brand-400)", textDecoration: "none", fontWeight: 600 }}
             >
-              All Projects →
+              All Projects <Icon name="arrowRight" size={14} />
             </Link>
           </div>
 
@@ -421,7 +424,9 @@ export default function DashboardPage() {
             </div>
           ) : projects.length === 0 ? (
             <div style={{ padding: "32px 16px", textAlign: "center", color: "var(--text-muted)" }}>
-              <div style={{ fontSize: 24, marginBottom: 8 }}>📁</div>
+              <div style={{ display: "flex", justifyContent: "center", marginBottom: 8, color: "var(--brand-400)" }}>
+                <Icon name="folder" size={24} />
+              </div>
               <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text-secondary)" }}>No projects yet</div>
               <Link href="/dashboard/projects" className="btn btn-primary btn-sm" style={{ marginTop: 10 }}>
                 Create First Project
@@ -481,7 +486,7 @@ export default function DashboardPage() {
                           className="btn btn-secondary btn-sm"
                           style={{ padding: "3px 8px", fontSize: 11 }}
                         >
-                          ☷ Board
+                          <Icon name="board" size={14} /> Board
                         </Link>
                       </div>
                     </div>
