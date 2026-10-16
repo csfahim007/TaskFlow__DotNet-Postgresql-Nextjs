@@ -1,0 +1,134 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: taskflow_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-taskflow_db}
+      POSTGRES_USER: ${POSTGRES_USER:-taskflow_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the private .env file}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:5434:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-taskflow_user} -d ${POSTGRES_DB:-taskflow_db}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskflow_net
+
+  redis:
+    image: redis:7-alpine
+    container_name: taskflow_redis
+    restart: unless-stopped
+    # AOF persistence + memory cap with LRU eviction (cache + token revocation lists)
+    command: ["redis-server", "--appendonly", "yes", "--maxmemory", "256mb", "--maxmemory-policy", "allkeys-lru"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - taskflow_net
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    container_name: taskflow_rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-taskflow}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in the private .env file}
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    ports:
+      - "127.0.0.1:5673:5672"
+      - "127.0.0.1:15673:15672" # management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - taskflow_net
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: taskflow_api
+    restart: unless-stopped
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Host=db;Port=5432;Database=${POSTGRES_DB:-taskflow_db};Username=${POSTGRES_USER:-taskflow_user};Password=${POSTGRES_PASSWORD:-taskflow_pass};
+      - Redis__ConnectionString=redis:6379,abortConnect=false
+      - RabbitMq__Uri=amqp://${RABBITMQ_USER:-taskflow}:${RABBITMQ_PASSWORD:?Set RABBITMQ_PASSWORD in the private .env file}@rabbitmq:5672/
+      - Jwt__SecretKey=${JWT_SECRET_KEY:?Set JWT_SECRET_KEY in the private .env file}
+      - Jwt__Issuer=TaskFlowAPI
+      - Jwt__Audience=TaskFlowClient
+      - AllowedOrigins=${ALLOWED_ORIGINS:-https://taskflow.cloudafk.xyz}
+      # Optional first-admin bootstrap (only runs if no Admin exists)
+      - Seed__AdminEmail=${SEED_ADMIN_EMAIL:-}
+      - Seed__AdminPassword=${SEED_ADMIN_PASSWORD:-}
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    volumes:
+      - api_logs:/app/logs
+    networks:
+      - taskflow_net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  frontend:
+    container_name: taskflow_frontend
+    restart: unless-stopped
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api-taskflow.cloudafk.xyz}
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      - api
+    networks:
+      - taskflow_net
+
+  nginx:
+    image: nginx:alpine
+    container_name: taskflow_nginx
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8081:80"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro,z
+    depends_on:
+      - api
+      - frontend
+    networks:
+      - taskflow_net
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:
+  api_logs:
+
+networks:
+  taskflow_net:
+    driver: bridge

@@ -1,0 +1,9 @@
+frontend/
+tests/
+**/bin/
+**/obj/
+.git
+.gitignore
+.vscode
+.idea
+*.log
