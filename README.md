@@ -35,6 +35,7 @@
 - [Technology Stack](#technology-stack)
 - [Repository Structure](#repository-structure)
 - [Environment Configuration](#environment-configuration)
+- [Continuous Integration & Deployment](#continuous-integration--deployment)
 - [Getting Started](#getting-started)
   - [Option A: Docker Compose (Recommended)](#option-a-docker-compose-recommended)
   - [Option B: Local Host Development](#option-b-local-host-development)
@@ -446,6 +447,51 @@ NEXT_PUBLIC_API_URL=https://api-taskflow.cloudafk.xyz
 ```
 
 An administrator is created only when both bootstrap settings are present and the database has no Admin account. These settings do not reset an existing administrator's password; use the authenticated password-change flow instead.
+
+---
+
+## Continuous Integration & Deployment
+
+The GitHub Actions workflow at `.github/workflows/ci-cd.yml` runs on pull requests and pushes to `main`. It runs the .NET test suite, installs frontend dependencies, and performs a production frontend build (including Next.js TypeScript checks). After validation succeeds for a push to `main` (or a manual run on `main`), it runs `deploy.sh` to securely sync the source to the VPS, run `docker compose up -d --build`, and check the API and login page. The destination `.env` is excluded from sync and remains on the VPS. The repository-wide ESLint command currently reports existing lint errors, so it is not used as a deployment gate.
+
+### Configure GitHub Actions deployment secrets
+
+In the GitHub repository, open **Settings → Environments**, create an environment named `production`, then add these secrets to that environment:
+
+| Secret | Value |
+| --- | --- |
+| `DEPLOY_HOST` | Public IP address or SSH hostname of the VPS |
+| `DEPLOY_PORT` | SSH port configured for the VPS |
+| `DEPLOY_USER` | Linux user that owns the deployment directory and can run `docker compose` |
+| `DEPLOY_PATH` | Absolute project directory, e.g. `/home/administrator/projects/dot_net_projects/TaskFlow` |
+| `DEPLOY_SSH_KEY` | Private half of a dedicated SSH key pair used only by GitHub Actions to connect to the VPS |
+| `DEPLOY_KNOWN_HOSTS` | Verified SSH host key line(s) for the VPS |
+
+Add the secrets to the `production` environment before pushing to `main`; otherwise, the deploy job will fail with a message identifying the missing setting. Use the custom SSH port configured for the VPS. `DEPLOY_KNOWN_HOSTS` must contain a verified known-hosts entry in the `[host]:port key-type public-key` format.
+
+Generate a dedicated deploy key pair on a trusted machine (do not use the VPS production `.env` or an existing personal private key):
+
+```bash
+ssh-keygen -t ed25519 -C "taskflow-github-actions-deploy" -f taskflow_actions_deploy -N ""
+```
+
+Add the contents of `taskflow_actions_deploy.pub` to the deployment user's `~/.ssh/authorized_keys` on the VPS. Put the contents of `taskflow_actions_deploy` into the `DEPLOY_SSH_KEY` secret. Delete the local key files securely after setup. The deployment user must be able to run Docker Compose; membership in the Docker group effectively grants root-equivalent access, so use a trusted key and protect the GitHub repository and production environment.
+
+Obtain the VPS SSH host key with `ssh-keyscan -p <ssh-port> <vps-host>` and compare its fingerprint against the VPS console before adding the verified line(s) to `DEPLOY_KNOWN_HOSTS`. Do not disable host-key checking. Restrict the `production` environment to trusted maintainers and, if desired, require approval before deployment.
+
+The deployment script transfers files without deleting untracked destination files, excludes `.env` and generated build/dependency directories, and builds on the VPS. Ensure the existing private `.env` remains in `DEPLOY_PATH`. A push or workflow run only deploys after CI succeeds.
+
+### Authenticate Git over HTTPS with Git Credential Manager
+
+The repository remote uses HTTPS. To push from this machine or the VPS, install Git Credential Manager (GCM), configure it for Git, and set up one of its supported secure credential stores for the operating system. Do not use Git's plaintext `store` helper or put a token in a remote URL, environment file, or repository file.
+
+```bash
+git-credential-manager configure
+git remote set-url origin https://github.com/csfahim007/TaskFlow__DotNet-Postgresql-Nextjs.git
+git push -u origin main
+```
+
+On the first push, complete GCM's GitHub browser or device authorization flow. Once authenticated, future pushes to `main` run CI and deploy after validation succeeds. Pull requests run validation only.
 
 ---
 
